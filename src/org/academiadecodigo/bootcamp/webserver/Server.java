@@ -3,6 +3,7 @@ package org.academiadecodigo.bootcamp.webserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 
 public class Server {
 
@@ -91,13 +92,13 @@ public class Server {
     private void sendResponse(String request){
 
         File file = null;
-        PrintWriter writer = null;
         BufferedReader reader = null;
-        ByteArrayOutputStream writerArray = null;
+        OutputStream writer = null;
 
 
         double fileSize;
         String content;
+        String extension;
 
         System.out.println("Request is: " + request);
 
@@ -109,31 +110,43 @@ public class Server {
             System.out.println("Port: " + clientSocket.getPort());
             System.out.println("Socket closed? " + clientSocket.isClosed());
 
-            writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
-
-            if (!file.exists()){
-                writer.print("HTTP/1.0 404 Not Found");
+           /* if (!file.exists()){
+                writer.print("HTTP/1.0 404 Not Found".getBytes());
                 close(writer);
                 close(reader);
                 return;
-            }
+            }*/
 
             fileSize = file.length();
 
             reader = new BufferedReader(new FileReader(file));
 
+            writer = clientSocket.getOutputStream();
+            writer.write("HTTP/1.0 200 Document Follows\r\n".getBytes());
 
-            writer.print("HTTP/1.0 200 Document Follows\r\n");
-            writer.print("Content-Type: text/html; charset=UTF-8\r\n");
-            writer.print("Content-Length: " + Double.toString(fileSize) + " \r\n");
-            writer.print("\r\n");
+            extension = request.substring(request.lastIndexOf("." ) +1);
 
-            while((content = reader.readLine()) != null){
+            System.out.println("Content-Type: image/" + extension + " \\r\\n");
 
-                writer.println(content);
-                System.out.print(content);
+            switch (extension){
+
+                case "html":
+                    writer.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
+                    break;
+                default :
+                    writer.write(("Content-Type: image/" + extension + " \\r\\n\n").getBytes());
+                    break;
             }
+
+
+            writer.write(("Content-Length: " + Double.toString(fileSize) + " \r\n").getBytes());
+            writer.write("\r\n".getBytes());
+
+            byte[] fileContents = Files.readAllBytes(file.toPath());
+
+            writer.write(fileContents);
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
