@@ -3,9 +3,9 @@ package org.academiadecodigo.bootcamp.webserver;
 import java.io.*;
 import java.net.Socket;
 
-public class GetHandler {
+class GetHandler {
 
-    public static void checkContent(String request, Socket clientSocket){
+    static void checkContent(String request, Socket clientSocket){
 
         File file = null;
         file = new File("www" + request);
@@ -17,6 +17,7 @@ public class GetHandler {
 
         sendResponse(file, clientSocket, request);
     }
+
 
     private static void sendResponse(File file, Socket clientSocket, String request){
 
@@ -104,6 +105,7 @@ public class GetHandler {
             close(writer);
         }
     }
+
 
     private static void close(Closeable closeable){
 

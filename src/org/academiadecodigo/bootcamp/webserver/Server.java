@@ -39,6 +39,7 @@ public class Server {
 
         try {
             serverSocket = new ServerSocket(port);
+            System.out.println("Server running");
         } catch (IOException e) {
             e.printStackTrace();
         }
