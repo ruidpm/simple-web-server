@@ -54,6 +54,7 @@ class GetHandler {
                 case "GIF" :
                     writer.write(("Content-Type: image/" + extension + " \r\n").getBytes());
                     break;
+
                 case "WEBM" :
                     writer.write(("Content-Type: video/" + extension + " \r\n").getBytes());
                     break;
@@ -71,7 +72,7 @@ class GetHandler {
 
         } catch (IOException e) {
             System.out.println("Socket closed by client");;
-        }finally {
+        } finally {
             close(reader);
             close(writer);
         }
@@ -105,7 +106,7 @@ class GetHandler {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
 
             close(reader);
             close(writer);
