@@ -86,7 +86,9 @@ public class Server {
         }
 
         if (verb.toUpperCase().equals("GET")){
-            GetHandler.checkResource(request, clientSocket);
+
+            Thread thread = new Thread(new GetHandler(clientSocket, request));
+            thread.start();
             return;
         }
 

@@ -2,11 +2,26 @@ package org.academiadecodigo.bootcamp.webserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 
-class GetHandler {
+class GetHandler implements Runnable{
 
-    static void checkResource(String request, Socket clientSocket){
+    private Socket clientSocket;
+    private String request;
+
+    public GetHandler(Socket clientSocket, String request){
+
+        this.clientSocket = clientSocket;
+        this.request = request;
+    }
+
+    @Override
+    public void run() {
+
+        checkResource();
+    }
+
+    
+    private void checkResource(){
 
         File file = null;
         file = new File("www" + request);
@@ -17,10 +32,11 @@ class GetHandler {
         }
 
         sendResponse(file, clientSocket, request);
+
+        System.out.println("Thread: " + Thread.currentThread().getName());
     }
 
-
-    private static void sendResponse(File file, Socket clientSocket, String request){
+    private void sendResponse(File file, Socket clientSocket, String request){
 
         FileInputStream reader = null;
         OutputStream writer = null;
@@ -81,7 +97,7 @@ class GetHandler {
     }
 
 
-    private static void send404(Socket clientSocket){
+    private void send404(Socket clientSocket){
 
         FileInputStream reader = null;
         OutputStream writer = null;
@@ -117,7 +133,7 @@ class GetHandler {
     }
 
 
-    private static void close(Closeable closeable){
+    private void close(Closeable closeable){
 
         if (closeable == null){
             return;
