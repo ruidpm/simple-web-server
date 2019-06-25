@@ -3,7 +3,6 @@ package org.academiadecodigo.bootcamp.webserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 
 public class Server {
 
@@ -24,12 +23,15 @@ public class Server {
 
         while(true) {
             waitForConnection();
+            request = null;
             listen();
-            parseRequest();
-            close(clientSocket);
+
+            if (request != null){
+                parseRequest();
+                checkContent();
+            }
         }
-
-
+        //close(clientSocket);
        // close(serverSocket);
     }
 
@@ -64,100 +66,119 @@ public class Server {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-
-           // close(reader);  todo close this
         }
     }
 
 
     private void parseRequest(){
 
-        String parsedRequest;
+        request = request.split(" ")[1];
 
-        System.out.println("Request: " + request);
-
-        parsedRequest = request.split(" ")[1];
-        System.out.println("Parsed request: " + parsedRequest);
-
-        if (parsedRequest.equals("/")){
-            sendResponse("/index.html");
-            return;
+        if (request.equals("/")){
+            request = "/index.html";
         }
-
-        sendResponse(parsedRequest);
     }
 
 
-    private void sendResponse(String request){
+    private void checkContent(){
 
         File file = null;
-        BufferedReader reader = null;
+        file = new File("www" + request);
+
+        if (!file.exists()){
+            send404();
+            return;
+        }
+
+        sendResponse(file);
+    }
+
+
+    private void sendResponse(File file){
+
+        FileInputStream reader = null;
         OutputStream writer = null;
-
-
-        double fileSize;
-        String content;
         String extension;
+        double fileSize;
+        int bytesRead = 0;
+        byte[] buffer = new byte[1024];
 
-        System.out.println("Request is: " + request);
-
+        fileSize = file.length();
         try {
-            file = new File("www" + request);
-            System.out.println(file.toString());
-            fileSize = file.length();
-            System.out.println("FileSize: " + Double.toString(fileSize));
-            System.out.println("Port: " + clientSocket.getPort());
-            System.out.println("Socket closed? " + clientSocket.isClosed());
-
-
-           /* if (!file.exists()){
-                writer.print("HTTP/1.0 404 Not Found".getBytes());
-                close(writer);
-                close(reader);
-                return;
-            }*/
-
-            fileSize = file.length();
-
-            reader = new BufferedReader(new FileReader(file));
-
             writer = clientSocket.getOutputStream();
+            reader = new FileInputStream(file);
+
             writer.write("HTTP/1.0 200 Document Follows\r\n".getBytes());
 
             extension = request.substring(request.lastIndexOf("." ) +1);
 
-            System.out.println("Content-Type: image/" + extension + " \\r\\n");
+            switch (extension.toUpperCase()){
 
-            switch (extension){
-
-                case "html":
+                case "HTML":
                     writer.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
                     break;
-                default :
-                    writer.write(("Content-Type: image/" + extension + " \\r\\n\n").getBytes());
+
+                case "TXT":
+                    writer.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
+                    break;
+
+                case "JPG" :
+                    writer.write(("Content-Type: image/" + extension + " \r\n").getBytes());
+                    break;
+
+                case "GIF" :
+                    writer.write(("Content-Type: image/" + extension + " \r\n").getBytes());
                     break;
             }
-
 
             writer.write(("Content-Length: " + Double.toString(fileSize) + " \r\n").getBytes());
             writer.write("\r\n".getBytes());
 
-            byte[] fileContents = Files.readAllBytes(file.toPath());
+            while ((bytesRead = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, bytesRead);
+            }
 
-            writer.write(fileContents);
-
-
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            close(reader);
+            close(writer);
+        }
+    }
+
+
+    private void send404(){
+
+        FileInputStream reader = null;
+        OutputStream writer = null;
+        double fileSize;
+        File file = null;
+        int bytesRead = 0;
+        byte[] buffer = new byte[1024];
+
+        try {
+
+            file = new File("www/404.html");
+            fileSize = file.length();
+            reader = new FileInputStream(file);
+            writer = clientSocket.getOutputStream();
+
+            writer.write("HTTP/1.0 404 Not Found".getBytes());
+            writer.write("Content-Type: text/html; charset=UTF-8\r\n".getBytes());
+            writer.write(("Content-Length: " + Double.toString(fileSize) + " \r\n").getBytes());
+            writer.write("\r\n".getBytes());
+
+            while ((bytesRead = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, bytesRead);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
 
-            close(writer);
             close(reader);
+            close(writer);
         }
-
     }
 
 
