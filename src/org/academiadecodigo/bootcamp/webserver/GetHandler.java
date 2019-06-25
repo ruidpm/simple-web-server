@@ -20,7 +20,7 @@ class GetHandler implements Runnable{
         checkResource();
     }
 
-    
+
     private void checkResource(){
 
         File file = null;
