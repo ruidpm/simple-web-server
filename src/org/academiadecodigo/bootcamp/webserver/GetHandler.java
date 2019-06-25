@@ -24,11 +24,11 @@ class GetHandler {
         FileInputStream reader = null;
         OutputStream writer = null;
         String extension;
-        double fileSize;
+        int fileSize;
         int bytesRead = 0;
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[4096];
 
-        fileSize = file.length();
+        fileSize = (int) file.length();
         try {
             writer = clientSocket.getOutputStream();
             reader = new FileInputStream(file);
@@ -54,17 +54,23 @@ class GetHandler {
                 case "GIF" :
                     writer.write(("Content-Type: image/" + extension + " \r\n").getBytes());
                     break;
+                case "WEBM" :
+                    writer.write(("Content-Type: video/" + extension + " \r\n").getBytes());
+                    break;
             }
 
             writer.write(("Content-Length: " + Double.toString(fileSize) + " \r\n").getBytes());
             writer.write("\r\n".getBytes());
 
             while ((bytesRead = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, bytesRead);
+
+                if (!clientSocket.isClosed()){
+                    writer.write(buffer, 0, bytesRead);
+                }
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Socket closed by client");;
         }finally {
             close(reader);
             close(writer);
@@ -76,7 +82,7 @@ class GetHandler {
 
         FileInputStream reader = null;
         OutputStream writer = null;
-        double fileSize;
+        int fileSize;
         File file = null;
         int bytesRead = 0;
         byte[] buffer = new byte[1024];
@@ -84,7 +90,7 @@ class GetHandler {
         try {
 
             file = new File("www/404.html");
-            fileSize = file.length();
+            fileSize = (int) file.length();
             reader = new FileInputStream(file);
             writer = clientSocket.getOutputStream();
 
