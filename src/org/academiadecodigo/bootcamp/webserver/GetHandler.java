@@ -2,15 +2,16 @@ package org.academiadecodigo.bootcamp.webserver;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 
 class GetHandler {
 
-    static void checkContent(String request, Socket clientSocket){
+    static void checkResource(String request, Socket clientSocket){
 
         File file = null;
         file = new File("www" + request);
 
-        if (!file.exists()){
+        if (!file.exists() || file.isDirectory()){
             send404(clientSocket);
             return;
         }
@@ -60,6 +61,8 @@ class GetHandler {
                     break;
             }
 
+            // TODO: 25/06/2019 change to this String type = Files.probeContentType(file.toPath());
+            
             writer.write(("Content-Length: " + Double.toString(fileSize) + " \r\n").getBytes());
             writer.write("\r\n".getBytes());
 
@@ -73,6 +76,7 @@ class GetHandler {
         } finally {
             close(reader);
             close(writer);
+            close(clientSocket);
         }
     }
 
@@ -108,6 +112,7 @@ class GetHandler {
 
             close(reader);
             close(writer);
+            close(clientSocket);
         }
     }
 

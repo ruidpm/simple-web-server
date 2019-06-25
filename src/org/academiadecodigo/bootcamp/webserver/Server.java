@@ -30,8 +30,6 @@ public class Server {
                 parseRequest();
             }
         }
-        //close(clientSocket);
-       // close(serverSocket);
     }
 
 
@@ -75,6 +73,8 @@ public class Server {
         String verb;
 
         if (request.split(" ").length < 3){
+
+            close(clientSocket);
             return;
         }
 
@@ -86,8 +86,11 @@ public class Server {
         }
 
         if (verb.toUpperCase().equals("GET")){
-            GetHandler.checkContent(request, clientSocket);
+            GetHandler.checkResource(request, clientSocket);
+            return;
         }
+
+        close(clientSocket);
     }
 
 
