@@ -65,9 +65,7 @@ class GetHandler {
 
             while ((bytesRead = reader.read(buffer)) != -1) {
 
-                if (!clientSocket.isClosed()){
                     writer.write(buffer, 0, bytesRead);
-                }
             }
 
         } catch (IOException e) {
