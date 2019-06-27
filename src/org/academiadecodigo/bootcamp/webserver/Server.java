@@ -3,12 +3,15 @@ package org.academiadecodigo.bootcamp.webserver;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private String request;
+    //private String request;
+    private ExecutorService threadPool;
 
 
     public Server(int port){
@@ -20,15 +23,17 @@ public class Server {
     private void runServer(int port) {
 
         initServer(port);
+        threadPool = Executors.newFixedThreadPool(1300);
 
         while(true) {
             waitForConnection();
-            request = null;
-            listen();
+           // request = null;
+
+            /*listen();
 
             if (request != null){
                 parseRequest();
-            }
+            }*/
         }
     }
 
@@ -48,19 +53,10 @@ public class Server {
 
         try {
             clientSocket = serverSocket.accept();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-
-    private void listen(){
-
-        BufferedReader reader = null;
-
-        try {
-            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            request = reader.readLine();
+            threadPool.submit(new RequestHandler(clientSocket));
+           // Thread thread = new Thread(new RequestHandler(clientSocket));
+            //thread.start();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,35 +64,7 @@ public class Server {
     }
 
 
-    private void parseRequest(){
-
-        String verb;
-
-        if (request.split(" ").length < 3){
-
-            close(clientSocket);
-            return;
-        }
-
-        verb = request.split(" ")[0];
-        request = request.split(" ")[1];
-
-        if (request.equals("/")){
-            request = "/index.html";
-        }
-
-        if (verb.toUpperCase().equals("GET")){
-
-            Thread thread = new Thread(new GetHandler(clientSocket, request));
-            thread.start();
-            return;
-        }
-
-        close(clientSocket);
-    }
-
-
-    private void close(Closeable closeable){
+    /*private void close(Closeable closeable){
 
         if (closeable == null){
             return;
@@ -107,5 +75,5 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

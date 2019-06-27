@@ -3,7 +3,7 @@ package org.academiadecodigo.bootcamp.webserver;
 import java.io.*;
 import java.net.Socket;
 
-class GetHandler implements Runnable{
+class GetHandler{
 
     private Socket clientSocket;
     private String request;
@@ -12,11 +12,6 @@ class GetHandler implements Runnable{
 
         this.clientSocket = clientSocket;
         this.request = request;
-    }
-
-    @Override
-    public void run() {
-
         checkResource();
     }
 
@@ -33,7 +28,6 @@ class GetHandler implements Runnable{
 
         sendResponse(file, clientSocket, request);
 
-        System.out.println("Thread: " + Thread.currentThread().getName());
     }
 
     private void sendResponse(File file, Socket clientSocket, String request){
