@@ -1,4 +1,4 @@
-package org.academiadecodigo.bootcamp.webserver;
+package org.academiadecodigo.bootcamp.webserver.server.handlers;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -64,9 +64,6 @@ public class RequestHandler implements Runnable{
         }
 
         if (verb.toUpperCase().equals("GET")){
-
-            //Thread thread = new Thread(new GetHandler(clientSocket, request));
-            //thread.start();
 
             new GetHandler(clientSocket, request);
             return;

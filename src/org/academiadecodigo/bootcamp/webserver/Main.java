@@ -1,8 +1,11 @@
 package org.academiadecodigo.bootcamp.webserver;
 
+import org.academiadecodigo.bootcamp.webserver.server.Server;
+
 public class Main {
     public static void main(String[] args) {
 
-        new Server(9999);
+        Server server = new Server();
+        server.runServer(9999);
     }
 }

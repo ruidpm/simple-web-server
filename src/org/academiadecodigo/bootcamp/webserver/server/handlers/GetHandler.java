@@ -1,4 +1,4 @@
-package org.academiadecodigo.bootcamp.webserver;
+package org.academiadecodigo.bootcamp.webserver.server.handlers;
 
 import java.io.*;
 import java.net.Socket;

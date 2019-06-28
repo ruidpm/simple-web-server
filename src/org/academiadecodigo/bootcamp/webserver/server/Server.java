@@ -1,4 +1,6 @@
-package org.academiadecodigo.bootcamp.webserver;
+package org.academiadecodigo.bootcamp.webserver.server;
+
+import org.academiadecodigo.bootcamp.webserver.server.handlers.RequestHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -9,31 +11,21 @@ import java.util.concurrent.Executors;
 public class Server {
 
     private ServerSocket serverSocket;
-    private Socket clientSocket;
-    //private String request;
     private ExecutorService threadPool;
 
 
-    public Server(int port){
+    public Server(){
 
-        runServer(port);
     }
 
 
-    private void runServer(int port) {
+    public void runServer(int port) {
 
         initServer(port);
         threadPool = Executors.newFixedThreadPool(1300);
 
         while(true) {
             waitForConnection();
-           // request = null;
-
-            /*listen();
-
-            if (request != null){
-                parseRequest();
-            }*/
         }
     }
 
@@ -51,29 +43,15 @@ public class Server {
 
     private void waitForConnection(){
 
+        Socket clientSocket;
+
         try {
             clientSocket = serverSocket.accept();
 
             threadPool.submit(new RequestHandler(clientSocket));
-           // Thread thread = new Thread(new RequestHandler(clientSocket));
-            //thread.start();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-    /*private void close(Closeable closeable){
-
-        if (closeable == null){
-            return;
-        }
-
-        try {
-            closeable.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
